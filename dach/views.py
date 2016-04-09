@@ -10,14 +10,9 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .connect import (get_descriptor, create_tenant, get_access_token,
                       get_and_check_capabilities)
+from .models import Tenant, Token
+from .signals import post_install, post_uninstall
 from .utils import dotdict
-
-# DESCRIPTOR = dotdict(json.loads(get_template(
-#     getattr(
-#         settings,
-#         'DACH_TEMPLATE_NAME',
-#         'atlassian-connect.json')
-#     ).render()))
 
 
 logger = logging.getLogger('dach')
@@ -45,16 +40,11 @@ def installable(request):
         token = get_access_token(tenant)
         tenant.group_name = token.group_name
         tenant.save()
+        post_install.send(__name__, tenant=tenant)
         logger.info('addon successfully installed')
-
-# clientInfo.groupId = tokenObj.group_id;
-# self.emit('installed', clientKey, clientInfo, req);
-# self.emit('plugin_enabled', clientKey, clientInfo, req);
-# self.settings.set('clientInfo', clientInfo, clientKey).then(function (data) {
-#     self.logger.info("Saved tenant details for " + clientKey + " to database\n" + util.inspect(data));
-#     self.emit('host_settings_saved', clientKey, data);
-#     res.send(204);
         return HttpResponse(status=204)
+    return HttpResponseNotAllowed()
+
 
 def configurable(request):
     pass
@@ -63,4 +53,13 @@ def configurable(request):
 @csrf_exempt
 def uninstall(request, oauth_id):
     if request.method == 'DELETE':
-        print('uninstall', oauth_id)
+        Token.objects.filter(pk=oauth_id).delete()
+        Tenant.objects.filter(pk=oauth_id).delete()
+        post_uninstall.send(__name__)
+        logger.info('addon successfully uninstalled')
+        return HttpResponse(status=204)
+    return HttpResponseNotAllowed()
+
+
+
+
