@@ -1,0 +1,30 @@
+{% load staticfiles %}
+{% load dach %}
+{
+  "key": "rho",
+  "name": "Rho",
+  "description": "Rho is the Gesco butler!",
+  "vendor": {
+    "name": "Gestores 1880 SAU",
+    "url": "https://www.gaa9.com"
+  },
+  "links": {
+    "self": "{% absurl 'dach_descriptor' %}",
+    "homepage": "{% absurl 'dach_homepage' %}"
+  },
+  "capabilities": {
+    "hipchatApiConsumer": {
+      "avatar": {
+        "url": "{% static 'dach/img/logo_rho.png' %}",
+        "url@2x": "{% static 'dach/img/logo_rho.png' %}"        
+      },
+      "scopes": [
+        "send_notification",
+        "view_room"
+      ]
+    },
+    "installable": {
+      "callbackUrl": "{% absurl 'dach_installable' %}"
+    }
+  }
+}
