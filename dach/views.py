@@ -3,17 +3,22 @@ from __future__ import unicode_literals
 import json
 import logging
 
-import requests
+from django.db import transaction
 from django.http import HttpResponse, HttpResponseNotAllowed
-from django.shortcuts import render
 from django.utils.encoding import smart_text
 from django.views.decorators.csrf import csrf_exempt
 
-from .utils import (
-    get_access_token,
-    get_and_check_capabilities,
-    save_client_info
-)
+from .connect import (get_descriptor, create_tenant, get_access_token,
+                      get_and_check_capabilities)
+from .utils import dotdict
+
+# DESCRIPTOR = dotdict(json.loads(get_template(
+#     getattr(
+#         settings,
+#         'DACH_TEMPLATE_NAME',
+#         'atlassian-connect.json')
+#     ).render()))
+
 
 logger = logging.getLogger('dach')
 
@@ -24,29 +29,22 @@ def homepage(request):
 
 def descriptor(request):
     if request.method == 'GET':
-        return render(
-            request,
-            'atlassian-connect.json',
-            content_type='application/json')
-    raise HttpResponseNotAllowed()
+        return HttpResponse(
+            json.dumps(get_descriptor()),
+            content_type='application/json'
+        )
+    return HttpResponseNotAllowed()
 
 
 @csrf_exempt
 def installable(request):
     if request.method == 'POST':
-        data = json.loads(smart_text(request.body))
-        doc = get_and_check_capabilities(data['capabilitiesUrl'])
-        client_info = {
-            'oauth_id': data['oauthId'],
-            'oauth_secret': data['oauthSecret'],
-            'capabilities_url': data['capabilitiesUrl'],
-            'capabilities_doc': doc,
-            'group_id': data['groupId'],
-            'room_id': data.get('roomId', None)
-        }
-        token = get_access_token(client_info)
-        client_info['group_name'] = token.group_name
-
+        info = dotdict(json.loads(smart_text(request.body)))
+        doc = get_and_check_capabilities(info.capabilitiesUrl)
+        tenant = create_tenant(info, doc)
+        token = get_access_token(tenant)
+        tenant.group_name = token.group_name
+        tenant.save()
         logger.info('addon successfully installed')
 
 # clientInfo.groupId = tokenObj.group_id;
@@ -60,3 +58,9 @@ def installable(request):
 
 def configurable(request):
     pass
+
+
+@csrf_exempt
+def uninstall(request, oauth_id):
+    if request.method == 'DELETE':
+        print('uninstall', oauth_id)

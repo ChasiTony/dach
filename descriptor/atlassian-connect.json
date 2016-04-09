@@ -1,4 +1,3 @@
-{% load staticfiles %}
 {% load dach %}
 {
   "key": "rho",
@@ -15,8 +14,8 @@
   "capabilities": {
     "hipchatApiConsumer": {
       "avatar": {
-        "url": "{% static 'dach/img/logo_rho.png' %}",
-        "url@2x": "{% static 'dach/img/logo_rho.png' %}"        
+        "url": "{% absstatic 'dach/img/logo_rho.png' %}",
+        "url@2x": "{% absstatic 'dach/img/logo_rho.png' %}"        
       },
       "scopes": [
         "send_notification",

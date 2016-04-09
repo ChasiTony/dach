@@ -98,11 +98,19 @@ USE_L10N = True
 USE_TZ = True
 
 
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
-DACH_BASE_URL = 'https://dach.ngrok.io'
 
-STATIC_URL = DACH_BASE_URL + '/static/'
+STATIC_URL = '/static/'
+
+
+
+# DACH settings
+
+DACH_BASE_URL = 'https://dach.ngrok.io' # mandatory
+# DACH_TEMPLATE_NAME = optional default to atlassian-connect.json
 
 
 LOGGING = {
