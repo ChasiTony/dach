@@ -1,11 +1,9 @@
 from django.conf.urls import url
 
-from .views import (homepage, descriptor, installable, configurable, uninstall)
+from .views import (descriptor, install, uninstall)
 
 urlpatterns = [
-    url(r'^$', homepage, name='dach_homepage'),
     url(r'^atlassian-connect.json$', descriptor, name='dach_descriptor'),
-    url(r'^installable$', installable, name='dach_installable'),
-    url(r'^installable/(?P<oauth_id>.*)$', uninstall),
-    url(r'^configurable$', configurable, name='dach_configurable'),
+    url(r'^install$', install, name='dach_installable'),
+    url(r'^install/(?P<oauth_id>.*)$', uninstall, name='dach_remove'),
 ]

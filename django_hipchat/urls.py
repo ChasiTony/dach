@@ -19,4 +19,5 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dach/hipchat/api/', include('dach.urls')),
+    url(r'^tapp/', include('tapp.urls')),
 ]

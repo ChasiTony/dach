@@ -9,7 +9,7 @@
   },
   "links": {
     "self": "{% absurl 'dach_descriptor' %}",
-    "homepage": "{% absurl 'dach_homepage' %}"
+    "homepage": "https://www.google.com"
   },
   "capabilities": {
     "hipchatApiConsumer": {
@@ -24,6 +24,19 @@
     },
     "installable": {
       "callbackUrl": "{% absurl 'dach_installable' %}"
-    }
+    },
+    "glance": [
+      {
+        "name": {
+          "value": "SEA global status"
+        },
+        "queryUrl": "{% absurl 'tapp_glance' %}",
+        "key": "rho.glance",
+        "icon": {
+          "url": "{% absstatic 'dach/img/logo_rho.png' %}",
+          "url@2x": "{% absstatic 'dach/img/logo_rho.png' %}"
+        }
+      }
+    ]
   }
 }

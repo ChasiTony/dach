@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 import json
 import logging
 
-from django.db import transaction
 from django.http import HttpResponse, HttpResponseNotAllowed
 from django.utils.encoding import smart_text
 from django.views.decorators.csrf import csrf_exempt
@@ -18,10 +17,6 @@ from .utils import dotdict
 logger = logging.getLogger('dach')
 
 
-def homepage(request):
-    pass
-
-
 def descriptor(request):
     if request.method == 'GET':
         return HttpResponse(
@@ -32,7 +27,7 @@ def descriptor(request):
 
 
 @csrf_exempt
-def installable(request):
+def install(request):
     if request.method == 'POST':
         info = dotdict(json.loads(smart_text(request.body)))
         doc = get_and_check_capabilities(info.capabilitiesUrl)
@@ -46,10 +41,6 @@ def installable(request):
     return HttpResponseNotAllowed()
 
 
-def configurable(request):
-    pass
-
-
 @csrf_exempt
 def uninstall(request, oauth_id):
     if request.method == 'DELETE':
@@ -59,7 +50,3 @@ def uninstall(request, oauth_id):
         logger.info('addon successfully uninstalled')
         return HttpResponse(status=204)
     return HttpResponseNotAllowed()
-
-
-
-
