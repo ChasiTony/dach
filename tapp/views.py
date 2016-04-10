@@ -1,6 +1,6 @@
 import json
 
-from django.http import HttpResponse
+from dach.shortcuts import dach_response
 
 from dach.decorators import jwt_required
 
@@ -20,6 +20,4 @@ def glance(request):
             }
         }
     }
-    r = HttpResponse(json.dumps(g), content_type='application/json')
-    r['Access-Control-Allow-Origin'] = '*'
-    return r
+    return dach_response(g)
