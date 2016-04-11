@@ -5,8 +5,8 @@ python:
   - "3.4"
   - "3.5"
 env:
-  - django=18
-  - django=19
+  - django=django18
+  - django=django19
 install:
   - pip install tox
 script:
