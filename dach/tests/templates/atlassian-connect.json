@@ -1,0 +1,29 @@
+{% load dach %}
+{
+  "key": "test_dach",
+  "name": "Dach",
+  "description": "Dach Test Suite",
+  "vendor": {
+    "name": "Francesco Faraone",
+    "url": "https://github.com/ffaraone/dach"
+  },
+  "links": {
+    "self": "{% absurl 'dach_descriptor' %}",
+    "homepage": "https://github.com/ffaraone/dach"
+  },
+  "capabilities": {
+    "hipchatApiConsumer": {
+      "avatar": {
+        "url": "{% absstatic 'dach/img/logo_rho.png' %}",
+        "url@2x": "{% absstatic 'dach/img/logo_rho.png' %}"        
+      },
+      "scopes": [
+        "send_notification",
+        "view_room"
+      ]
+    },
+    "installable": {
+      "callbackUrl": "{% absurl 'dach_installable' %}"
+    }
+  }
+}

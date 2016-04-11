@@ -18,7 +18,7 @@ def tenant_passes_test(test_func):
     return decorator
 
 
-def jwt_required(function=None):
+def tenant_required(function=None):
     actual_decorator = tenant_passes_test(
         lambda request: hasattr(request, 'tenant')
     )

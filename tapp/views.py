@@ -2,10 +2,10 @@ import json
 
 from dach.shortcuts import dach_response
 
-from dach.decorators import jwt_required
+from dach.decorators import tenant_required
 
 
-@jwt_required
+@tenant_required
 def glance(request):
     g = {
         'label': {

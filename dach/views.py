@@ -23,7 +23,7 @@ def descriptor(request):
             json.dumps(get_descriptor()),
             content_type='application/json'
         )
-    return HttpResponseNotAllowed()
+    return HttpResponseNotAllowed(['get'])
 
 
 @csrf_exempt
@@ -38,7 +38,7 @@ def install(request):
         post_install.send(__name__, tenant=tenant)
         logger.info('addon successfully installed')
         return HttpResponse(status=204)
-    return HttpResponseNotAllowed()
+    return HttpResponseNotAllowed(['post'])
 
 
 @csrf_exempt
@@ -49,4 +49,4 @@ def uninstall(request, oauth_id):
         post_uninstall.send(__name__)
         logger.info('addon successfully uninstalled')
         return HttpResponse(status=204)
-    return HttpResponseNotAllowed()
+    return HttpResponseNotAllowed(['delete'])
