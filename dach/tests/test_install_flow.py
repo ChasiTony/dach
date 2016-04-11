@@ -1,21 +1,25 @@
 import base64
 import json
-from unittest.mock import MagicMock
 
 import responses
+import six
 from dach.models import Tenant, Token
 from dach.signals import post_install, post_uninstall
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.encoding import smart_text
-from six.moves.urllib_parse import parse_qs
+
+if six.PY3:
+    from unittest.mock import MagicMock
+else:
+    from mock import MagicMock
 
 
 class InstallFlowTestCase(TestCase):
 
     def method_not_allowed(self, url, allowed):
         methods = ('get', 'post', 'head', 'options',
-                        'put', 'patch', 'delete')
+                   'put', 'patch', 'delete')
         for method_name in filter(lambda x: x != allowed, methods):
             method = getattr(self.client, method_name)
             res = method(url)
@@ -37,7 +41,7 @@ class InstallFlowTestCase(TestCase):
             auth = request.headers['Authorization']
             auth = smart_text(base64.b64decode(auth[6:]))
             auth = auth.split(':')
-            payload = parse_qs(request.body)
+            payload = six.moves.urllib_parse.parse_qs(request.body)
             self.assertEqual(auth[0], 'my_oauth_id')
             self.assertEqual(auth[1], 'my_oauth_secret')
             self.assertIn('grant_type', payload)
