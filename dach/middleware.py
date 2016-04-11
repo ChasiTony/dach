@@ -33,18 +33,15 @@ class HipChatJWTAuthenticationMiddleware(object):
             logger.debug('tenant found for token, try to verify')
             verified = dotdict(jwt.decode(token, tenant.oauth_secret))
             logger.debug('token successfully verified')
-            expires = verified.exp
-            logger.debug('token expires on %s', expires)
-            if int(time()/1000) > expires:
-                logger.warn('JWT token has expired')
-                return HttpResponse(
-                    'Unauthorized: The JWT token has expired',
-                    status=401
-                )
             setattr(request, 'tenant', tenant)
             logger.info('jwt token successfully validated!')
+        except jwt.exceptions.ExpiredSignatureError:
+            return HttpResponse(
+                'Unauthorized: The JWT token has expired',
+                status=401
+            )
         except:
-            logger.warn('JWT token has an invalid signature')
+            logger.exception('JWT token verify error')
             return HttpResponse(
                 'Unauthorized: The JWT token signature is invalid',
                 status=401

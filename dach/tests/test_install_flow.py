@@ -4,25 +4,29 @@ from unittest.mock import MagicMock
 
 import responses
 from dach.models import Tenant, Token
-from dach.signals import post_install
+from dach.signals import post_install, post_uninstall
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.encoding import smart_text
 from six.moves.urllib_parse import parse_qs
 
 
-class InstallTestCase(TestCase):
+class InstallFlowTestCase(TestCase):
+
+    def method_not_allowed(self, url, allowed):
+        methods = ('get', 'post', 'head', 'options',
+                        'put', 'patch', 'delete')
+        for method_name in filter(lambda x: x != allowed, methods):
+            method = getattr(self.client, method_name)
+            res = method(url)
+            self.assertEqual(res.status_code, 405)
 
     def test_descriptor(self):
         response = self.client.get(reverse('dach_descriptor'))
         self.assertEqual(response.status_code, 200)
 
     def test_descriptor_http_method_not_allowed(self):
-        for methodname in ('post', 'head', 'options',
-                           'put', 'patch', 'delete'):
-            method = getattr(self.client, methodname)
-            res = method(reverse('dach_descriptor'))
-            self.assertEqual(res.status_code, 405)
+        self.method_not_allowed(reverse('dach_descriptor'), 'get')
 
     @responses.activate
     def test_install(self):
@@ -112,12 +116,11 @@ class InstallTestCase(TestCase):
         )
 
     def test_install_http_method_not_allowed(self):
-        for methodname in ('get', 'head', 'options', 'put', 'patch', 'delete'):
-            method = getattr(self.client, methodname)
-            res = method(reverse('dach_installable'))
-            self.assertEqual(res.status_code, 405)
+        self.method_not_allowed(reverse('dach_installable'), 'post')
 
     def test_uninstall(self):
+        handler = MagicMock()
+        post_uninstall.connect(handler)
         tenant_data = {
             'oauth_id': 'my_oauth_id',
             'oauth_secret': 'my_oauth_secret',
@@ -140,9 +143,12 @@ class InstallTestCase(TestCase):
         self.assertEqual(res.status_code, 204)
         self.assertEqual(Tenant.objects.filter(pk='my_oauth_id').count(), 0)
         self.assertEqual(Token.objects.filter(pk='my_oauth_id').count(), 0)
+        handler.assert_called_once_with(
+            signal=post_uninstall,
+            sender='dach.views',
+            oauth_id='my_oauth_id'
+        )
 
     def test_uninstall_http_method_not_allowed(self):
-        for methodname in ('get', 'post', 'head', 'options', 'put', 'patch'):
-            method = getattr(self.client, methodname)
-            res = method(reverse('dach_uninstall', args=['test']))
-            self.assertEqual(res.status_code, 405)
+        self.method_not_allowed(reverse('dach_uninstall', args=['test']),
+                                'delete')

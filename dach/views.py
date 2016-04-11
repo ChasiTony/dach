@@ -46,7 +46,7 @@ def uninstall(request, oauth_id):
     if request.method == 'DELETE':
         Token.objects.filter(pk=oauth_id).delete()
         Tenant.objects.filter(pk=oauth_id).delete()
-        post_uninstall.send(__name__)
+        post_uninstall.send(__name__, oauth_id=oauth_id)
         logger.info('addon successfully uninstalled')
         return HttpResponse(status=204)
     return HttpResponseNotAllowed(['delete'])
