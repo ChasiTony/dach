@@ -8,6 +8,6 @@ env:
   - django=18
   - django=19
 install:
-  - pip install tox coveralls
+  - pip install tox
 script:
   - tox -e py${TRAVIS_PYTHON_VERSION//[.]/}-$django
