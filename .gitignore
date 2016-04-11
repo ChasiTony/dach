@@ -1,3 +1,5 @@
 *.pyc
 *.sublime-*
 capabilities_doc/*
+.tox
+dach.egg-info
