@@ -3,11 +3,13 @@ import json
 
 import responses
 import six
-from dach.models import Tenant, Token
 from dach.signals import post_install, post_uninstall
+from dach.storage import get_backend
+from dach.structs import Tenant, Token
+from django.apps import apps
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.utils.encoding import smart_text
+from django.utils.encoding import force_text
 
 if six.PY3:
     from unittest.mock import MagicMock
@@ -39,7 +41,7 @@ class InstallFlowTestCase(TestCase):
 
         def token_request_callback(request):
             auth = request.headers['Authorization']
-            auth = smart_text(base64.b64decode(auth[6:]))
+            auth = force_text(base64.b64decode(auth[6:]))
             auth = auth.split(':')
             payload = six.moves.urllib_parse.parse_qs(request.body)
             self.assertEqual(auth[0], 'my_oauth_id')
@@ -94,8 +96,8 @@ class InstallFlowTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 204)
 
-        tenant = Tenant.objects.get_or_none(pk='my_oauth_id')
-        token = Token.objects.get_or_none(pk='my_oauth_id')
+        tenant = get_backend().get_tenant('my_oauth_id')
+        token = get_backend().get_token('my_oauth_id', 'scope1|scope2')
         self.assertIsNotNone(tenant)
         self.assertIsNotNone(token)
         self.assertEqual(tenant.oauth_secret, 'my_oauth_secret')
@@ -104,18 +106,18 @@ class InstallFlowTestCase(TestCase):
         self.assertEqual(tenant.room_id, 2)
         self.assertEqual(tenant.capabilities_url,
                          'http://someurl.com/capabilities')
-        self.assertEqual(smart_text(tenant.capabilities_doc.read()),
-                         json.dumps(capabilities_response))
+        # self.assertEqual(force_text(tenant.capabilities_doc.read()),
+        #                  json.dumps(capabilities_response))
         self.assertEqual(token.group_id, 1)
         self.assertEqual(token.group_name, 'test_group')
         self.assertEqual(token.access_token, 'my access token')
         self.assertEqual(token.expires_in, 3600)
-        self.assertEqual(token.scope, 'scope1 scope2')
+        self.assertEqual(token.scope, 'scope1|scope2')
         self.assertEqual(token.token_type, 'bearer')
 
         handler.assert_called_once_with(
             signal=post_install,
-            sender='dach.views',
+            sender=apps.get_app_config('dach'),
             tenant=tenant
         )
 
@@ -133,23 +135,25 @@ class InstallFlowTestCase(TestCase):
             'room_id': 2
         }
         token_data = {
+            'oauth_id': 'my_oauth_id',
             'access_token': 'my access token',
             'expires_in': 3600,
             'group_name': 'test_group',
             'token_type': 'bearer',
-            'scope': 'scope1 scope2',
+            'scope': 'scope1|scope2',
             'group_id': 1
         }
-        Tenant.objects.create(**tenant_data)
-        Token.objects.create(**token_data)
+        get_backend().set_tenant(Tenant(**tenant_data))
+        get_backend().set_token(Token(**token_data))
         res = self.client.delete(reverse('dach_uninstall',
                                          args=['my_oauth_id']))
         self.assertEqual(res.status_code, 204)
-        self.assertEqual(Tenant.objects.filter(pk='my_oauth_id').count(), 0)
-        self.assertEqual(Token.objects.filter(pk='my_oauth_id').count(), 0)
+        self.assertIsNone(get_backend().get_tenant('my_oauth_id'))
+        self.assertIsNone(get_backend().get_token('my_oauth_id',
+                                                  'scope1|scope2'))
         handler.assert_called_once_with(
             signal=post_uninstall,
-            sender='dach.views',
+            sender=apps.get_app_config('dach'),
             oauth_id='my_oauth_id'
         )
 

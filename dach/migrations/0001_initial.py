@@ -13,13 +13,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Tenant',
             fields=[
-                ('oauth_id', models.CharField(primary_key=True, max_length=255, serialize=False)),
+                ('oauth_id', models.CharField(max_length=255, serialize=False, primary_key=True)),
                 ('group_id', models.PositiveIntegerField()),
                 ('group_name', models.CharField(max_length=255)),
                 ('oauth_secret', models.CharField(max_length=255)),
                 ('room_id', models.PositiveIntegerField()),
                 ('capabilities_url', models.URLField()),
-                ('capabilities_doc', models.FileField(upload_to='capabilities_doc/')),
+                ('oauth_token_url', models.URLField()),
             ],
             options={
                 'abstract': False,
@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Token',
             fields=[
-                ('oauth_id', models.CharField(primary_key=True, max_length=255, serialize=False)),
+                ('oauth_id', models.CharField(max_length=255, serialize=False, primary_key=True)),
                 ('group_id', models.PositiveIntegerField()),
                 ('group_name', models.CharField(max_length=255)),
                 ('access_token', models.CharField(max_length=255)),
@@ -37,8 +37,9 @@ class Migration(migrations.Migration):
                 ('token_type', models.CharField(max_length=255)),
                 ('created', models.DateTimeField(auto_now_add=True)),
             ],
-            options={
-                'abstract': False,
-            },
+        ),
+        migrations.AlterIndexTogether(
+            name='token',
+            index_together=set([('oauth_id', 'scope')]),
         ),
     ]

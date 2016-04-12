@@ -1,0 +1,47 @@
+import logging
+from datetime import datetime, timedelta
+
+import requests
+from dach.storage import get_backend
+from dach.structs import Token
+from dach.connect import get_api_scopes
+
+
+logger = logging.getLogger('dach')
+
+
+def get_access_token(tenant, scopes=None):
+
+    scopes = scopes or get_api_scopes()
+
+    def _generate_token():
+        logger.debug('generate access token at %s for %s',
+                     tenant.oauth_token_url, tenant.oauth_id)
+        payload = {
+            'grant_type': 'client_credentials',
+            'scope': ' '.join(scopes)
+        }
+        res = requests.post(
+            tenant.oauth_token_url,
+            data=payload,
+            auth=(tenant.oauth_id, tenant.oauth_secret)
+        )
+        if res.status_code == 200:
+            token_info = res.json()
+            token = Token(oauth_id=tenant.oauth_id, **token_info)
+            token.scope = '|'.join(token.scope.split(' '))
+            get_backend().set_token(token)
+            return token
+        raise Exception('cannot generate access token: %s', res.status_code)
+
+    token = get_backend().get_token(tenant.oauth_id, '|'.join(scopes))
+    if token:
+        logger.debug('token exists for %s', tenant.oauth_id)
+        expires = token.created + timedelta(seconds=token.expires_in)
+        if expires < datetime.now():
+            logger.debug('token expired for %s', tenant.oauth_id)
+            return _generate_token()
+        logger.debug('token is yet valid for %s', tenant.oauth_id)
+        return token
+    logger.debug('no token found for %s', tenant.oauth_id)
+    return _generate_token()

@@ -1,10 +1,11 @@
 from time import time
 
 import jwt
-from dach.models import Tenant, Token
+from dach.storage import get_backend
+from dach.structs import Tenant, Token
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.utils.encoding import smart_text
+from django.utils.encoding import force_text
 from six.moves.urllib_parse import quote_plus
 
 
@@ -19,15 +20,16 @@ class JWTTestCase(TestCase):
             'room_id': 2
         }
         token_data = {
+            'oauth_id': 'my_oauth_id',
             'access_token': 'my access token',
             'expires_in': 3600,
             'group_name': 'test_group',
             'token_type': 'bearer',
-            'scope': 'scope1 scope2',
+            'scope': 'scope1|scope2',
             'group_id': 1
         }
-        Tenant.objects.create(**tenant_data)
-        Token.objects.create(**token_data)
+        get_backend().set_tenant(Tenant(**tenant_data))
+        get_backend().set_token(Token(**token_data))
 
     def test_valid_jwt_querystring(self):
         payload = {
@@ -47,7 +49,7 @@ class JWTTestCase(TestCase):
         }
         encoded = jwt.encode(payload, 'my_oauth_secret')
         res = self.client.get(reverse('jwt_test_view'),
-            HTTP_AUTHORIZATION='JWT {}'.format(smart_text(encoded)))
+            HTTP_AUTHORIZATION='JWT {}'.format(force_text(encoded)))
         self.assertEqual(res.status_code, 204)
 
     def test_jwt_invalid_signature(self):
@@ -57,10 +59,10 @@ class JWTTestCase(TestCase):
         }
         encoded = jwt.encode(payload, 'no_valid_oauth_secret')
         res = self.client.get(reverse('jwt_test_view'),
-            HTTP_AUTHORIZATION='JWT {}'.format(smart_text(encoded)))
+            HTTP_AUTHORIZATION='JWT {}'.format(force_text(encoded)))
         self.assertEqual(res.status_code, 401)
         self.assertEqual('Unauthorized: The JWT token signature is invalid',
-                         smart_text(res.content))
+                         force_text(res.content))
 
     def test_jwt_token_expired(self):
         payload = {
@@ -69,7 +71,7 @@ class JWTTestCase(TestCase):
         }
         encoded = jwt.encode(payload, 'my_oauth_secret')
         res = self.client.get(reverse('jwt_test_view'),
-            HTTP_AUTHORIZATION='JWT {}'.format(smart_text(encoded)))
+            HTTP_AUTHORIZATION='JWT {}'.format(force_text(encoded)))
         self.assertEqual(res.status_code, 401)
         self.assertEqual('Unauthorized: The JWT token has expired',
-                         smart_text(res.content))
+                         force_text(res.content))

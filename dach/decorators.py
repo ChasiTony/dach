@@ -13,7 +13,8 @@ def tenant_passes_test(test_func):
         def _wrapped_view(request, *args, **kwargs):
             if test_func(request):
                 return view_func(request, *args, **kwargs)
-            return HttpResponse('JWT token required', status=401)
+            return HttpResponse('Unauthorized: A tenant is required',
+                                status=401)
         return _wrapped_view
     return decorator
 

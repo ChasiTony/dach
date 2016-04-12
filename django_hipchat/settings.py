@@ -152,3 +152,10 @@ LOGGING = {
 # descriptor file full path or relative to BASE_DIR (optional)
 # default to BASE_DIR/descriptor/atlassian-connect.json
 # DACH_CAPABILITIES_DESCRIPTOR = ''
+
+#DACH_STORAGE = {
+#    'redis': {
+#        'host': 'localhost',
+#        'port': 6379
+#    }
+#}
