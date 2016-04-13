@@ -5,10 +5,10 @@ python:
   - "3.4"
   - "3.5"
 env:
-  - django=django18
-  - django=django19
-  - storage=redis
-  - storage=rdbms
+  - django=django18 storage=redis
+  - django=django18 storage=rdbms
+  - django=django19 storage=redis
+  - django=django19 storage=rdbms
 services:
   - redis-server
 install:
