@@ -1,5 +1,9 @@
 *.pyc
 *.sublime-*
-capabilities_doc/*
 .tox
 dach.egg-info
+build
+dist
+dach/migrations/*.py
+db.sqlite3
+.project

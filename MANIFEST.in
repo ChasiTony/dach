@@ -1,4 +1,3 @@
 include LICENSE
-include README.md
-recursive-include dach/static *
-recursive-include polls/templates *
+include README.rst
+recursive-include dach/templates *

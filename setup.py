@@ -1,16 +1,17 @@
 import os
 from setuptools import find_packages, setup
 
-with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
+with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
     README = readme.read()
 
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='dach',
-    version='0.1',
+    version='0.1.3',
     packages=find_packages(),
     include_package_data=True,
+    install_requires=['pyjwt>=1.4.0', 'django>=1.8', 'requests>=2.7'],
     license='Apache Software License',
     description='A Django app to create Atlassian Connect HipChat Addons',
     long_description=README,
@@ -20,8 +21,6 @@ setup(
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
-        'Framework :: Django :: 1.6',
-        'Framework :: Django :: 1.7',
         'Framework :: Django :: 1.8',
         'Framework :: Django :: 1.9',
         'Intended Audience :: Developers',
