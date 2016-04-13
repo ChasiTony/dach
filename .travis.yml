@@ -7,7 +7,15 @@ python:
 env:
   - django=django18
   - django=django19
+  - storage=redis
+  - storage=rdbms
+services:
+  - redis-server
 install:
   - pip install tox
 script:
-  - tox -e py${TRAVIS_PYTHON_VERSION//[.]/}-$django
+  - tox -e py${TRAVIS_PYTHON_VERSION//[.]/}-$django-$storage
+notifications:
+  email:
+    on_success: always
+    on_failure: always

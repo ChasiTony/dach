@@ -3,87 +3,48 @@ import os
 import sys
 
 import django
+import argparse
 
 from django.conf import settings
 
 
-DEFAULT_SETTINGS = dict(
-    SECRET_KEY='my secret key',
-    DEBUG=True,
-    ALLOWED_HOSTS=[],
-    INSTALLED_APPS=(
-        'django.contrib.admin',
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
-        'django.contrib.staticfiles',
-        'dach',
-    ),
-    MIDDLEWARE_CLASSES=(
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        'django.middleware.security.SecurityMiddleware',
-        'dach.middleware.HipChatJWTAuthenticationMiddleware',
-    ),
-    ROOT_URLCONF='dach.tests.urls',
-    TEMPLATES=[
-        {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': ['dach/tests/templates'],
-            'APP_DIRS': True,
-            'OPTIONS': {
-                'context_processors': [
-                    'django.template.context_processors.debug',
-                    'django.template.context_processors.request',
-                    'django.contrib.auth.context_processors.auth',
-                    'django.contrib.messages.context_processors.messages',
-                ],
-            },
-        },
-    ],
-    DATABASES={
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': ':memory:',
-        }
-    },
-    LANGUAGE_CODE='en-us',
-    TIME_ZONE='UTC',
-    USE_I18N=True,
-    USE_L10N=True,
-    USE_TZ=True,
-    STATIC_URL='/static/',
-    DACH_BASE_URL='https://dach.ngrok.io'
-)
-
-
-def runtests(*test_args):
-    if not settings.configured:
-        settings.configure(**DEFAULT_SETTINGS)
+def runtests(options):
+    os.environ['DJANGO_SETTINGS_MODULE'] = options.settings
 
     django.setup()
 
     parent = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, parent)
 
-    try:
-        from django.test.runner import DiscoverRunner
-        runner_class = DiscoverRunner
-        test_args = ["dach.tests"]
-    except ImportError:
-        from django.test.simple import DjangoTestSuiteRunner
-        runner_class = DjangoTestSuiteRunner
-        test_args = ["tests"]
+    from django.test.runner import DiscoverRunner
+    runner_class = DiscoverRunner
+    test_args = ["dach.tests"]
 
-    failures = runner_class(verbosity=2, interactive=True, failfast=False).run_tests(test_args)
+    failures = runner_class(verbosity=options.verbosity,
+                            interactive=options.interactive,
+                            failfast=options.failfast).run_tests(test_args)
     sys.exit(failures)
 
 
 if __name__ == "__main__":
-    runtests(*sys.argv[1:])
+    parser = argparse.ArgumentParser(description='Run Dach tests')
+    parser.add_argument(
+        '-v', '--verbosity', default=1, type=int, choices=[0, 1, 2, 3],
+        help='Verbosity level',
+    )
+    parser.add_argument(
+        '--noinput', action='store_false', dest='interactive', default=True,
+        help='Not prompt for input',
+    )
+    parser.add_argument(
+        '--failfast', action='store_true', dest='failfast', default=False,
+        help='Stop tests after first fail',
+    )
+    parser.add_argument(
+        '--settings',
+        help='Python path to settings module',
+        default='dach.tests.settings.rdbms'
+    )
+
+    options = parser.parse_args()
+    runtests(options)
