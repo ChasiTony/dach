@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+import time
 
 import requests
 from dach.storage import get_backend
@@ -29,6 +30,7 @@ def get_access_token(tenant, scopes=None):
         if res.status_code == 200:
             token_info = res.json()
             token = Token(oauth_id=tenant.oauth_id, **token_info)
+            token.created = time.time()
             token.scope = '|'.join(token.scope.split(' '))
             get_backend().set_token(token)
             return token
@@ -37,7 +39,7 @@ def get_access_token(tenant, scopes=None):
     token = get_backend().get_token(tenant.oauth_id, '|'.join(scopes))
     if token:
         logger.debug('token exists for %s', tenant.oauth_id)
-        expires = token.created + timedelta(seconds=token.expires_in)
+        expires = datetime.fromtimestamp(token.created) + timedelta(seconds=token.expires_in)
         if expires < datetime.now():
             logger.debug('token expired for %s', tenant.oauth_id)
             return _generate_token()

@@ -37,7 +37,8 @@ class Tenant(DefKeysDict):
         'oauth_secret',
         'room_id',
         'capabilities_url',
-        'oauth_token_url'
+        'oauth_token_url',
+        'api_url'
     ])
 
 

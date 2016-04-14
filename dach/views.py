@@ -29,7 +29,9 @@ def _get_and_check_capabilities(url):
             raise Exception('The capabilities URL doesn\'t'
                             ' match the resource self link')
         logger.info('capabilities doc downloaded')
-        return lookup_dict(doc, 'capabilities.oauth2Provider.tokenUrl')
+        return (lookup_dict(doc, 'capabilities.oauth2Provider.tokenUrl'),
+                lookup_dict(doc, 'links.api'))
+
     raise Exception('Cannot donwload the capabilities doc: {}'
                     .format(res.status_code))
 
@@ -48,12 +50,13 @@ def install(request):
     if request.method == 'POST':
         info = json.loads(force_text(request.body))
         capabilities_url = lookup_dict(info, 'capabilitiesUrl')
-        token_url = _get_and_check_capabilities(capabilities_url)
+        token_url, api_url = _get_and_check_capabilities(capabilities_url)
         tenant = Tenant()
         tenant.oauth_id = info['oauthId']
         tenant.oauth_secret = info['oauthSecret']
         tenant.capabilities_url = capabilities_url
         tenant.oauth_token_url = token_url
+        tenant.api_url = api_url
         tenant.group_id = info['groupId']
         tenant.room_id = info.get('roomId', None)
 

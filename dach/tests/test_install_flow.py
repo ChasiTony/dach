@@ -60,7 +60,8 @@ class InstallFlowTestCase(TestCase):
         }
         capabilities_response = {
             'links': {
-                'self': 'http://someurl.com/capabilities'
+                'self': 'http://someurl.com/capabilities',
+                'api': 'http://someurl.com/api'
             },
             'capabilities': {
                 'oauth2Provider': {
@@ -106,6 +107,8 @@ class InstallFlowTestCase(TestCase):
         self.assertEqual(tenant.room_id, 2)
         self.assertEqual(tenant.capabilities_url,
                          'http://someurl.com/capabilities')
+        self.assertEqual(tenant.api_url,
+                         'http://someurl.com/api')
         # self.assertEqual(force_text(tenant.capabilities_doc.read()),
         #                  json.dumps(capabilities_response))
         self.assertEqual(token.group_id, 1)

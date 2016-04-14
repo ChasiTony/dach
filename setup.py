@@ -8,10 +8,11 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='dach',
-    version='0.1.4',
+    version='0.1.8',
     packages=find_packages(),
     include_package_data=True,
     install_requires=['pyjwt>=1.4.0', 'django>=1.8', 'requests>=2.7'],
+    zip_safe=False,
     license='Apache Software License',
     description='A Django app to create Atlassian Connect HipChat Addons',
     long_description=README,
