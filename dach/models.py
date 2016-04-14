@@ -52,7 +52,9 @@ if not getattr(settings, 'DACH_STORAGE', None):
         oauth_token_url = models.URLField(
             null=False
         )
-
+        api_url = models.URLField(
+            null=False
+        )
 
     class Token(DachModel):
         class Meta:
