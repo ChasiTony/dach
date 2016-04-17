@@ -5,8 +5,6 @@ import sys
 import django
 import argparse
 
-from django.conf import settings
-
 
 def runtests(options):
     os.environ['DJANGO_SETTINGS_MODULE'] = options.settings

@@ -5,7 +5,7 @@ import requests
 from dach.connect.auth import get_access_token
 from dach.utils import lookup_dict
 
-logger = logging.getLogger('dach')
+logger = logging.getLogger(__name__)
 
 
 def _get_all(tenant, url):
@@ -17,12 +17,12 @@ def _get_all(tenant, url):
     }
     while url:
         res = requests.get(url, headers=headers)
-        if res.status_code != requests.codes.ok:
-            return res.status_code, objects, res.text
+        if res.status_code != 200:
+            return False, objects, res
         hooks = res.json()
         url = lookup_dict(hooks, 'links.next', strict=False)
         objects.extend(lookup_dict(hooks, 'items'))
-    return res.status_code, objects, res.text
+    return True, objects, res
 
 
 def get_all_rooms(tenant):

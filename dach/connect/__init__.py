@@ -23,4 +23,4 @@ def get_descriptor():
 
 def get_api_scopes():
     return lookup_dict(get_descriptor(),
-                        'capabilities.hipchatApiConsumer.scopes')
+                       'capabilities.hipchatApiConsumer.scopes')
