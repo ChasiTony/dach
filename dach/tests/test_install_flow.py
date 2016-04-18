@@ -1,5 +1,6 @@
 import base64
 import json
+import time
 
 import responses
 import six
@@ -144,7 +145,8 @@ class InstallFlowTestCase(TestCase):
             'group_name': 'test_group',
             'token_type': 'bearer',
             'scope': 'scope1|scope2',
-            'group_id': 1
+            'group_id': 1,
+            'created': time.time()
         }
         get_backend().set_tenant(Tenant(**tenant_data))
         get_backend().set_token(Token(**token_data))

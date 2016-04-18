@@ -26,7 +26,8 @@ class JWTTestCase(TestCase):
             'group_name': 'test_group',
             'token_type': 'bearer',
             'scope': 'scope1|scope2',
-            'group_id': 1
+            'group_id': 1,
+            'created': time()
         }
         get_backend().set_tenant(Tenant(**tenant_data))
         get_backend().set_token(Token(**token_data))
