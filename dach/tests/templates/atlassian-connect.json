@@ -8,7 +8,7 @@
     "url": "https://github.com/ffaraone/dach"
   },
   "links": {
-    "self": "{% absurl 'dach_descriptor' %}",
+    "self": "{% absurl 'test:dach_descriptor' %}",
     "homepage": "https://github.com/ffaraone/dach"
   },
   "capabilities": {
@@ -23,7 +23,7 @@
       ]
     },
     "installable": {
-      "callbackUrl": "{% absurl 'dach_installable' %}"
+      "callbackUrl": "{% absurl 'test:dach_installable' %}"
     }
   }
 }
