@@ -58,8 +58,8 @@ class Command(TemplateCommand):
         else:
             app_dir = os.path.abspath(os.path.expanduser(target))
 
-        template_dir = os.path.join(app_dir, 'templates')
-        os.mkdir(template_dir)
+        template_dir = os.path.join(app_dir, 'templates', app_name)
+        os.mkdirs(template_dir)
         t = string.Template(DESCRIPTOR_TEMPLATE)
         descriptor = t.substitute(app_name=app_name,
                                   cap_app_name=app_name.capitalize())
