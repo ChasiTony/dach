@@ -1,8 +1,12 @@
 Dach
 ====
 
-.. image:: https://travis-ci.org/ffaraone/dach.svg?branch=master
-.. image:: https://coveralls.io/repos/github/ffaraone/dach/badge.svg?branch=master :target: https://coveralls.io/github/ffaraone/dach?branch=master
+.. image:: https://img.shields.io/coveralls/ffaraone/dach.svg
+    :target: https://coveralls.io/r/ffaraone/dach
+
+.. image:: https://img.shields.io/travis/ffaraone/dach/master.svg
+    :target: https://travis-ci.org/ffaraone/dach-python
+
 
 
 Django Atlassian Connect for HipChat (Dach) is a Django application that simplify the development of an Atlassian HipCat addon.
