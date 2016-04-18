@@ -5,17 +5,15 @@ python:
   - "3.4"
   - "3.5"
 env:
-  - django=django18 storage=redis
-  - django=django18 storage=rdbms
-  - django=django19 storage=redis
-  - django=django19 storage=rdbms
+  - django=django18
+  - django=django19
 services:
   - redis-server
 install:
   - pip install tox
   - pip install coveralls
 script:
-  - tox -e py${TRAVIS_PYTHON_VERSION//[.]/}-$django-$storage
+  - tox -e py${TRAVIS_PYTHON_VERSION//[.]/}-$django-rdbms -e py${TRAVIS_PYTHON_VERSION//[.]/}-$django-redis
 after_success:
   - coverage combine
   - coveralls
