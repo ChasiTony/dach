@@ -39,7 +39,7 @@ def get_access_token(tenant, scopes=None):
     token = get_backend().get_token(tenant.oauth_id, '|'.join(scopes))
     if token:
         logger.debug('token exists for %s', tenant.oauth_id)
-        expires = datetime.fromtimestamp(token.created) + timedelta(seconds=token.expires_in)
+        expires = datetime.fromtimestamp(float(token.created)) + timedelta(seconds=token.expires_in)
         if expires < datetime.now():
             logger.debug('token expired for %s', tenant.oauth_id)
             return _generate_token()

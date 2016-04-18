@@ -81,9 +81,6 @@ if not getattr(settings, 'DACH_STORAGE', None):
             null=False,
             blank=False
         )
-        created = models.DateTimeField(
-            null=False,
-            auto_now_add=True
+        created = models.FloatField(
+            null=False
         )
-
-

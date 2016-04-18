@@ -43,3 +43,17 @@ def get_all_participants(tenant, room_id):
 def get_all_webhooks(tenant, room_id):
     url = '{}/room/{}/webhook'.format(tenant.api_url, room_id)
     return _get_all(tenant, url)
+
+
+def update_addon_ui(tenant, room_id, glance):
+    url = '{}/addon/ui/room/{}'.format(tenant.api_url, room_id)
+    token = get_access_token(tenant)
+    headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer {}'.format(token.access_token)
+    }
+    res = requests.post(url, headers=headers, json={'glance': [ glance ]})
+    return res.status_code == 204, None, res
+
+
