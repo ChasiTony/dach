@@ -13,8 +13,12 @@ services:
   - redis-server
 install:
   - pip install tox
+  - pip install coveralls
 script:
   - tox -e py${TRAVIS_PYTHON_VERSION//[.]/}-$django-$storage
+after_success:
+  coverage combine
+  coveralls
 notifications:
   email:
     on_success: change
