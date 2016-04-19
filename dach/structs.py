@@ -38,7 +38,9 @@ class Tenant(DefKeysDict):
         'room_id',
         'capabilities_url',
         'oauth_token_url',
-        'api_url'
+        'api_url',
+        'app_name',
+        'scopes'
     ])
 
 

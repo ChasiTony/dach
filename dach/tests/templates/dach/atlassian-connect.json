@@ -8,22 +8,15 @@
     "url": "https://github.com/ffaraone/dach"
   },
   "links": {
-    "self": "{% absurl 'test:dach_descriptor' %}",
+    "self": "{% absurl 'test:descriptor' %}",
     "homepage": "https://github.com/ffaraone/dach"
   },
   "capabilities": {
     "hipchatApiConsumer": {
-      "avatar": {
-        "url": "{% absstatic 'dach/img/logo_rho.png' %}",
-        "url@2x": "{% absstatic 'dach/img/logo_rho.png' %}"        
-      },
-      "scopes": [
-        "send_notification",
-        "view_room"
-      ]
+      "scopes": {% scopes %}
     },
     "installable": {
-      "callbackUrl": "{% absurl 'test:dach_installable' %}"
+      "callbackUrl": "{% absurl 'test:install' %}"
     }
   }
 }

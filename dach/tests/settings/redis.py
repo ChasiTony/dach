@@ -50,9 +50,17 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 STATIC_URL = '/static/'
-DACH_BASE_URL = 'https://dach.ngrok.io'
-DACH_STORAGE = {
-    'redis': {
-        'host': 'localhost'
+
+DACH_CONFIG = {
+    'base_url': 'https://dach.ngrok.io',
+    'appconfig': {
+        'dach': {
+            'scopes': ['scope1', 'scope2']
+        }
+    },
+    'storage': {
+        'redis': {
+            'host': 'localhost'
+        }
     }
 }

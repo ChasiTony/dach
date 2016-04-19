@@ -5,12 +5,13 @@ import logging
 
 import requests
 
-from dach.connect import get_descriptor
 from dach.connect.auth import get_access_token
 from dach.storage import get_backend
 from dach.structs import Tenant
 from django.apps import apps
+from django.conf import settings
 from django.http import HttpResponse, HttpResponseNotAllowed
+from django.shortcuts import render
 from django.utils.encoding import force_text
 from django.views.decorators.csrf import csrf_exempt
 
@@ -18,6 +19,9 @@ from .signals import post_install, post_uninstall
 from .utils import lookup_dict
 
 logger = logging.getLogger(__name__)
+
+
+DACH_CONFIG = getattr(settings, 'DACH_CONFIG')
 
 
 def _get_and_check_capabilities(url):
@@ -38,16 +42,25 @@ def _get_and_check_capabilities(url):
 
 def descriptor(request):
     if request.method == 'GET':
-        return HttpResponse(
-            json.dumps(get_descriptor()),
-            content_type='application/json'
-        )
+        app_name = request.resolver_match.app_name
+        if not app_name:
+            raise Exception('you must include the dach.urls with the app_name')
+        descritor_tpl = DACH_CONFIG['appconfig'][app_name].get('descriptor',
+            '{}/atlassian-connect.json'.format(app_name))
+        return render(request, descritor_tpl, content_type='application/json')
+
     return HttpResponseNotAllowed(['get'])
 
 
 @csrf_exempt
 def install(request):
     if request.method == 'POST':
+        app_name = request.resolver_match.app_name
+        if not app_name:
+            raise Exception('you must include the dach.urls with the app_name')
+        appconfig = DACH_CONFIG['appconfig']
+        scopes_list = appconfig[app_name]['scopes']
+
         info = json.loads(force_text(request.body))
         capabilities_url = lookup_dict(info, 'capabilitiesUrl')
         token_url, api_url = _get_and_check_capabilities(capabilities_url)
@@ -59,13 +72,15 @@ def install(request):
         tenant.api_url = api_url
         tenant.group_id = info['groupId']
         tenant.room_id = info.get('roomId', None)
+        tenant.app_name = app_name
+        tenant.scopes = '|'.join(scopes_list)
 
         token = get_access_token(tenant)
 
         tenant.group_name = token.group_name
         get_backend().set_tenant(tenant)
         post_install.send(
-            apps.get_app_config(request.resolver_match.app_name or 'dach'),
+            apps.get_app_config(app_name),
             tenant=tenant
         )
         logger.info('addon successfully installed')
@@ -76,12 +91,13 @@ def install(request):
 @csrf_exempt
 def uninstall(request, oauth_id):
     if request.method == 'DELETE':
+        app_name = request.resolver_match.app_name
+        if not app_name:
+            raise Exception('you must include the dach.urls with the app_name')
         get_backend().del_tokens(oauth_id)
         get_backend().del_tenant(oauth_id)
         post_uninstall.send(
-            apps.get_app_config(
-                request.resolver_match.app_name or 'dach'
-            ),
+            apps.get_app_config(app_name),
             oauth_id=oauth_id
         )
         logger.info('addon successfully uninstalled')

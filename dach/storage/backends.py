@@ -8,7 +8,7 @@ __backend = None
 def get_backend():
     return __backend
 
-if not getattr(settings, 'DACH_STORAGE', None):
+if not getattr(settings, 'DACH_CONFIG').get('storage', None):
     from dach.models import Tenant as DbTenant, Token as DbToken
 
     class DatabaseBackend(object):
@@ -44,13 +44,13 @@ if not getattr(settings, 'DACH_STORAGE', None):
 
     __backend = DatabaseBackend()
 
-elif 'redis' in getattr(settings, 'DACH_STORAGE'):
+elif 'redis' in getattr(settings, 'DACH_CONFIG')['storage']:
     import redis
 
     class RedisBackend(object):
 
         def __init__(self):
-            conn_params = getattr(settings, 'DACH_STORAGE')['redis']
+            conn_params = getattr(settings, 'DACH_CONFIG')['storage']['redis']
             self.client = redis.Redis(**conn_params)
 
         def get_tenant(self, oauth_id):

@@ -1,3 +1,5 @@
+import os
+
 
 SECRET_KEY = 'my secret key'
 DEBUG = True
@@ -23,6 +25,10 @@ MIDDLEWARE_CLASSES = (
     'dach.middleware.HipChatJWTAuthenticationMiddleware',
 )
 ROOT_URLCONF = 'dach.tests.urls'
+# template_dir = os.path.join(
+#     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+#     'templates'
+# )
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -50,4 +56,12 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 STATIC_URL = '/static/'
-DACH_BASE_URL = 'https://dach.ngrok.io'
+
+DACH_CONFIG = {
+    'base_url': 'https://dach.ngrok.io',
+    'appconfig': {
+        'dach': {
+            'scopes': ['scope1', 'scope2']
+        }
+    }
+}

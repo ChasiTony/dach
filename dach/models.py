@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 
 
-if not getattr(settings, 'DACH_STORAGE', None):
+if not getattr(settings, 'DACH_CONFIG').get('storage', None):
 
     __all__ = ['Tenant', 'Token']
 
@@ -54,6 +54,16 @@ if not getattr(settings, 'DACH_STORAGE', None):
         )
         api_url = models.URLField(
             null=False
+        )
+        app_name = models.CharField(
+            max_length=255,
+            null=False,
+            blank=False
+        )
+        scopes = models.CharField(
+            max_length=255,
+            null=False,
+            blank=False
         )
 
     class Token(DachModel):

@@ -29,11 +29,11 @@ class InstallFlowTestCase(TestCase):
             self.assertEqual(res.status_code, 405)
 
     def test_descriptor(self):
-        response = self.client.get(reverse('test:dach_descriptor'))
+        response = self.client.get(reverse('test:descriptor'))
         self.assertEqual(response.status_code, 200)
 
     def test_descriptor_http_method_not_allowed(self):
-        self.method_not_allowed(reverse('test:dach_descriptor'), 'get')
+        self.method_not_allowed(reverse('test:descriptor'), 'get')
 
     @responses.activate
     def test_install(self):
@@ -92,7 +92,7 @@ class InstallFlowTestCase(TestCase):
         )
 
         response = self.client.post(
-            reverse('test:dach_installable'),
+            reverse('test:install'),
             data=json.dumps(post_data),
             content_type='application/json'
         )
@@ -110,6 +110,8 @@ class InstallFlowTestCase(TestCase):
                          'http://someurl.com/capabilities')
         self.assertEqual(tenant.api_url,
                          'http://someurl.com/api')
+        self.assertEqual(tenant.app_name, 'dach')
+        self.assertEqual(tenant.scopes, 'scope1|scope2')
         # self.assertEqual(force_text(tenant.capabilities_doc.read()),
         #                  json.dumps(capabilities_response))
         self.assertEqual(token.group_id, 1)
@@ -126,7 +128,7 @@ class InstallFlowTestCase(TestCase):
         )
 
     def test_install_http_method_not_allowed(self):
-        self.method_not_allowed(reverse('test:dach_installable'), 'post')
+        self.method_not_allowed(reverse('test:install'), 'post')
 
     def test_uninstall(self):
         handler = MagicMock()
@@ -150,7 +152,7 @@ class InstallFlowTestCase(TestCase):
         }
         get_backend().set_tenant(Tenant(**tenant_data))
         get_backend().set_token(Token(**token_data))
-        res = self.client.delete(reverse('test:dach_uninstall',
+        res = self.client.delete(reverse('test:uninstall',
                                          args=['my_oauth_id']))
         self.assertEqual(res.status_code, 204)
         self.assertIsNone(get_backend().get_tenant('my_oauth_id'))
@@ -163,5 +165,5 @@ class InstallFlowTestCase(TestCase):
         )
 
     def test_uninstall_http_method_not_allowed(self):
-        self.method_not_allowed(reverse('test:dach_uninstall', args=['test']),
+        self.method_not_allowed(reverse('test:uninstall', args=['test']),
                                 'delete')
