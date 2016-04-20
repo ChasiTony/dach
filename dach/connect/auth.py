@@ -29,14 +29,15 @@ def get_access_token(tenant):
             token = Token(oauth_id=tenant.oauth_id, **token_info)
             token.created = time.time()
             token.scope = '|'.join(token.scope.split(' '))
-            get_backend().set_token(token)
+            get_backend().set(tenant.oauth_id, 'token', token.json())
             return token
         raise Exception('cannot generate access token: %s', res.status_code)
 
-    token = get_backend().get_token(tenant.oauth_id, tenant.scopes)
+    token = get_backend().get(tenant.oauth_id, 'token')
     if token:
         logger.debug('token exists for %s', tenant.oauth_id)
-        expires = datetime.fromtimestamp(float(token.created)) + timedelta(seconds=token.expires_in)
+        created = datetime.fromtimestamp(float(token.created))
+        expires = created + timedelta(seconds=token.expires_in)
         if expires < datetime.now():
             logger.debug('token expired for %s', tenant.oauth_id)
             return _generate_token()

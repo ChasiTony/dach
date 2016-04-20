@@ -1,6 +1,4 @@
-from dach.structs import Tenant, Token
 from django.conf import settings
-from django.utils.encoding import force_text
 
 __backend = None
 
@@ -8,79 +6,86 @@ __backend = None
 def get_backend():
     return __backend
 
+
+def _key(client_id, key):
+    return '{}:{}'.format(client_id, key)
+
+
+class AbstractBackend(object):
+    def get(self, client_id, key):
+        raise NotImplementedError()
+
+    def set(self, client_id, key, value):
+        raise NotImplementedError()
+
+    def delete(self, client_id, key=None):
+        raise NotImplementedError()
+
+    def by_key(self, key):
+        raise NotImplementedError()
+
+    def by_client_id(self, client_id):
+        raise NotImplementedError()
+
 if not getattr(settings, 'DACH_CONFIG').get('storage', None):
-    from dach.models import Tenant as DbTenant, Token as DbToken
+    from django.db.models import Q
+    from dach.models import DachObject
 
-    class DatabaseBackend(object):
+    class DatabaseBackend(AbstractBackend):
 
-        def get_tenant(self, oauth_id):
-            tenant = DbTenant.objects.get_or_none(pk=oauth_id)
-            return Tenant(**tenant.to_dict()) if tenant else None
+        def get(self, client_id, key):
+            obj = DachObject.objects.get_or_none(pk=_key(client_id, key))
+            return obj.value if obj else None
 
-        def set_tenant(self, tenant):
-            DbTenant.objects.update_or_create(
-                pk=tenant.oauth_id,
-                defaults={k: v for k, v in tenant.items() if k != 'oauth_id'}
+        def set(self, client_id, key, value):
+            DachObject.objects.update_or_create(
+                pk=_key(client_id, key),
+                defaults={'value': value}
             )
 
-        def del_tenant(self, oauth_id):
-            DbTenant.objects.filter(pk=oauth_id).delete()
+        def delete(self, client_id, key=None):
+            if key:
+                DachObject.objects.filter(pk=_key(client_id, key)).delete()
+            else:
+                DachObject.objects.filter(
+                    pk__startswith='{}:'.format(client_id)).delete()
 
-        def get_token(self, oauth_id, scope=None):
-            token = DbToken.objects.get_or_none(pk=oauth_id, scope=scope)
-            return Token(**token.to_dict()) if token else None
+        def by_key(self, key):
+            return {obj.id: obj.value
+                for obj in DachObject.objects.filter(
+                        pk__endswith=':{}'.format(key))}
 
-        def set_token(self, token):
-            DbToken.objects.update_or_create(
-                pk=token.oauth_id,
-                defaults={k: v for k, v in token.items() if k != 'oauth_id'}
-            )
-
-        def del_token(self, oauth_id, scope=None):
-            DbToken.objects.filter(pk=oauth_id, scope=scope).delete()
-
-        def del_tokens(self, oauth_id):
-            DbToken.objects.filter(pk=oauth_id).delete()
+        def by_client_id(self, client_id):
+            return {obj.id: obj.value
+                for obj in DachObject.objects.filter(
+                        pk__startswith='{}:'.format(client_id))}
 
     __backend = DatabaseBackend()
 
 elif 'redis' in getattr(settings, 'DACH_CONFIG')['storage']:
     import redis
 
-    class RedisBackend(object):
+    class RedisBackend(AbstractBackend):
 
         def __init__(self):
             conn_params = getattr(settings, 'DACH_CONFIG')['storage']['redis']
             self.client = redis.Redis(**conn_params)
 
-        def get_tenant(self, oauth_id):
-            tenant = self.client.get('{}:tenant'.format(oauth_id))
-            if tenant:
-                return Tenant.from_json(force_text(tenant))
-            return None
+        def get(self, client_id, key):
+            return self.client.get(_key(client_id, key))
 
-        def set_tenant(self, tenant):
-            self.client.set('{}:tenant'.format(tenant.oauth_id),
-                            tenant.json())
+        def set(self, client_id, key, value):
+            self.client.set(_key(client_id, key), value)
 
-        def del_tenant(self, oauth_id):
-            self.client.delete('{}:tenant'.format(oauth_id))
+        def delete(self, client_id, key=None):
+            keys = self.client.keys(_key(client_id, key or '*'))
+            if keys:
+                self.client.delete(*keys)
 
-        def get_token(self, oauth_id, scope):
-            token = self.client.get('{}:token:{}'.format(oauth_id, scope))
-            if token:
-                return Token.from_json(force_text(token))
-            return None
+        def by_key(self, key):
+            return self.client.get(_key('*', key))
 
-        def set_token(self, token):
-            self.client.set('{}:token:{}'.format(token.oauth_id, token.scope),
-                            token.json())
-
-        def del_token(self, oauth_id, scope):
-            self.client.delete('{}:token:{}'.format(oauth_id, scope))
-
-        def del_tokens(self, oauth_id):
-            for k in self.client.keys('{}:token:*'.format(oauth_id)):
-                self.client.delete(k)
+        def by_client_id(self, client_id):
+            return self.client.get(_key(client_id, '*'))
 
     __backend = RedisBackend()

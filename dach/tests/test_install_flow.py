@@ -98,10 +98,12 @@ class InstallFlowTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 204)
 
-        tenant = get_backend().get_tenant('my_oauth_id')
-        token = get_backend().get_token('my_oauth_id', 'scope1|scope2')
+        tenant = get_backend().get('my_oauth_id', 'tenant')
+        token = get_backend().get('my_oauth_id', 'token')
         self.assertIsNotNone(tenant)
         self.assertIsNotNone(token)
+        tenant = Tenant.from_json(tenant)
+        token = Token.from_json(token)
         self.assertEqual(tenant.oauth_secret, 'my_oauth_secret')
         self.assertEqual(tenant.group_id, 1)
         self.assertEqual(tenant.group_name, 'test_group')
@@ -150,14 +152,13 @@ class InstallFlowTestCase(TestCase):
             'group_id': 1,
             'created': time.time()
         }
-        get_backend().set_tenant(Tenant(**tenant_data))
-        get_backend().set_token(Token(**token_data))
+        get_backend().set('my_oauth_id', 'tenant', json.dumps(tenant_data))
+        get_backend().set('my_oauth_id', 'token', json.dumps(token_data))
         res = self.client.delete(reverse('test:uninstall',
                                          args=['my_oauth_id']))
         self.assertEqual(res.status_code, 204)
-        self.assertIsNone(get_backend().get_tenant('my_oauth_id'))
-        self.assertIsNone(get_backend().get_token('my_oauth_id',
-                                                  'scope1|scope2'))
+        self.assertIsNone(get_backend().get('my_oauth_id', 'tenant'))
+        self.assertIsNone(get_backend().get('my_oauth_id', 'token'))
         handler.assert_called_once_with(
             signal=post_uninstall,
             sender=apps.get_app_config('dach'),

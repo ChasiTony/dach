@@ -1,8 +1,8 @@
+import json
 from time import time
 
 import jwt
 from dach.storage import get_backend
-from dach.structs import Tenant, Token
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.encoding import force_text
@@ -29,8 +29,8 @@ class JWTTestCase(TestCase):
             'group_id': 1,
             'created': time()
         }
-        get_backend().set_tenant(Tenant(**tenant_data))
-        get_backend().set_token(Token(**token_data))
+        get_backend().set('my_oauth_id', 'tenant', json.dumps(tenant_data))
+        get_backend().set('my_oauth_id', 'token', json.dumps(token_data))
 
     def test_valid_jwt_querystring(self):
         payload = {

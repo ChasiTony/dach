@@ -78,7 +78,7 @@ def install(request):
         token = get_access_token(tenant)
 
         tenant.group_name = token.group_name
-        get_backend().set_tenant(tenant)
+        get_backend().set(tenant.oauth_id, 'tenant', tenant.json())
         post_install.send(
             apps.get_app_config(app_name),
             tenant=tenant
@@ -94,8 +94,7 @@ def uninstall(request, oauth_id):
         app_name = request.resolver_match.app_name
         if not app_name:
             raise Exception('you must include the dach.urls with the app_name')
-        get_backend().del_tokens(oauth_id)
-        get_backend().del_tenant(oauth_id)
+        get_backend().delete(oauth_id)
         post_uninstall.send(
             apps.get_app_config(app_name),
             oauth_id=oauth_id
