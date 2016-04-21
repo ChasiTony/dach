@@ -78,3 +78,5 @@ class Command(TemplateCommand):
         urls_name = os.path.join(app_dir, 'urls.py')
         with open(urls_name, 'w') as f:
             f.write(urls)
+
+        self.stdout.write('app %s generated' % app_name)
