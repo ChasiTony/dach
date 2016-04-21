@@ -79,4 +79,4 @@ class Command(TemplateCommand):
         with open(urls_name, 'w') as f:
             f.write(urls)
 
-        self.stdout.write('app %s generated' % app_name)
+        self.stdout.write('application %s generated' % app_name)
