@@ -53,6 +53,7 @@ STATIC_URL = '/static/'
 
 DACH_CONFIG = {
     'base_url': 'https://dach.ngrok.io',
+    'cors_domains': ['*.example.com'],
     'appconfig': {
         'dach': {
             'scopes': ['scope1', 'scope2']
