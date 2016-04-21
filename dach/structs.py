@@ -1,5 +1,5 @@
 import json
-
+from django.utils.encoding import force_text
 
 __all__ = ['Tenant', 'Token']
 
@@ -26,7 +26,7 @@ class DefKeysDict(dict):
 
     @classmethod
     def from_json(cls, j):
-        return cls(**json.loads(j))
+        return cls(**json.loads(force_text(j)))
 
 
 class Tenant(DefKeysDict):

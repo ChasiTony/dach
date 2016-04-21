@@ -4,6 +4,7 @@ import jwt
 from django.http import HttpResponse
 
 from .storage import get_backend
+from .structs import Tenant
 
 logger = logging.getLogger('dach')
 
@@ -21,10 +22,11 @@ class HipChatJWTAuthenticationMiddleware(object):
             unverified = jwt.decode(token, verify=False)
             logger.debug('jwt token decoded')
             issuer = unverified['iss']
-            tenant = get_backend().get_tenant(issuer)
+            tenant = get_backend().get(issuer, 'tenant')
             if not tenant:
                 logger.debug('no tenant found')
                 return
+            tenant = Tenant.from_json(tenant)
         except:
             return
         try:
