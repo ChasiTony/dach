@@ -1,6 +1,8 @@
+import base64
 from time import time
 
 import jwt
+import six
 from dach.storage import get_backend
 from dach.structs import Tenant, Token
 from django.core.urlresolvers import reverse
@@ -42,6 +44,24 @@ class JWTTestCase(TestCase):
                                             quote_plus(encoded))
         res = self.client.get(url)
         self.assertEqual(res.status_code, 204)
+
+    def test_invalid_jwt_token(self):
+        encoded = base64.b64encode(six.b('invalid token'))
+        url = '{}?signed_request={}'.format(reverse('jwt_test_view'),
+                                            quote_plus(encoded))
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 401)
+
+    def test_tenant_not_found(self):
+        payload = {
+            'iss': 'other_oauth_id',
+            'exp': time() + 3600
+        }
+        encoded = jwt.encode(payload, 'other_oauth_secret')
+        url = '{}?signed_request={}'.format(reverse('jwt_test_view'),
+                                            quote_plus(encoded))
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 401)
 
     def test_valid_jwt_header(self):
         payload = {
