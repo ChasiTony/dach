@@ -7,6 +7,17 @@ from django.utils.six.moves.urllib.parse import urljoin
 
 
 def lookup_dict(d, path, strict=True):
+    """Utility function that allows to get a value
+    from nested dictionaries through the use of dot notation.
+
+
+    Args:
+        d (dict): the dictionary object from which to get the value
+        path (str): the path to the value expressed as key1[.key2][.key3]...
+        strict (bool): if False and `path` not exists in `d` returns `None`.
+        Default to `True`.
+
+    """
     keys = deque(path.split('.'))
     while True:
         try:

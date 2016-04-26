@@ -3,14 +3,28 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to dach's documentation!
-================================
+Welcome to dach |release| documentation!
+========================================
+
+dach is a Django reusable app that aids a developer to integrate
+its Django web application with Atlassian HipChat.
+
+
+
 
 Contents:
+=========
 
 .. toctree::
    :maxdepth: 2
 
+   about
+   install
+   configure
+   use
+   plugins
+   write_your_own
+   api
 
 
 Indices and tables
