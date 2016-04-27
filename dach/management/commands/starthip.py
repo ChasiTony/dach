@@ -6,7 +6,7 @@ from django.core.management.templates import TemplateCommand
 from importlib import import_module
 
 
-DESCRIPTOR_TEMPLATE="""{% load dach %}
+DESCRIPTOR_TEMPLATE = """{% load dach %}
 {
   "key": "$app_name",
   "name": "$cap_app_name HipChat Addon",
@@ -16,7 +16,7 @@ DESCRIPTOR_TEMPLATE="""{% load dach %}
     "url": "https://example.com"
   },
   "links": {
-    "self": "{% absurl 'dach_descriptor' %}",
+    "self": "{% absurl '$app_name:descriptor' %}",
     "homepage": "https://example.com"
   },
   "capabilities": {
@@ -25,19 +25,19 @@ DESCRIPTOR_TEMPLATE="""{% load dach %}
       ]
     },
     "installable": {
-      "callbackUrl": "{% absurl 'dach_installable' %}"
+      "callbackUrl": "{% absurl '$app_name:install' %}"
     }
   }
 }
 """
-URLS_TEMPLATE="""from django.conf.urls import url, include
-
+URLS_TEMPLATE = """from django.conf.urls import url, include
 
 urlpatterns = [
     url(r'^setup/', include('dach.urls', namespace='$app_name',
-      app_name='$app_name')),
+                            app_name='$app_name')),
 ]
 """
+
 
 class Command(TemplateCommand):
     help = ("Creates a Dach Addon app directory structure for the given app "
