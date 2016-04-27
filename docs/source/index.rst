@@ -6,9 +6,7 @@
 Welcome to dach |release| documentation!
 ========================================
 
-dach is a Django reusable app that aids a developer to integrate
-its Django web application with Atlassian HipChat.
-
+dach is a python library for the  Django web framework that aids developers to build Atlassian HipChat addons.
 
 
 
@@ -18,7 +16,9 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   install
+   about
+   tutorial
+
 
 Indices and tables
 ==================
