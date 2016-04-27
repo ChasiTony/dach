@@ -18,14 +18,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   about
    install
-   configure
-   use
-   plugins
-   write_your_own
-   api
-
 
 Indices and tables
 ==================
