@@ -21,8 +21,7 @@ DESCRIPTOR_TEMPLATE = """{% load dach %}
   },
   "capabilities": {
     "hipchatApiConsumer": {
-      "scopes": [
-      ]
+      "scopes": {% scopes %}
     },
     "installable": {
       "callbackUrl": "{% absurl '$app_name:install' %}"
