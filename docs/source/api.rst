@@ -2,9 +2,6 @@ API Reference
 =============
 
 
-
-
-
 Signals
 *******
 

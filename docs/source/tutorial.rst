@@ -149,7 +149,39 @@ Edit your ``tutorial/urls.py`` to includes the weather app urls:
         url(r'^admin/', admin.site.urls),
         url(r'^weather/', include('weather.urls')),
     ]
-    
+
+
+Configure the weater addon
+--------------------------
+
+The ``starthip`` also created a basic ``atlassian-connect.json`` addon descriptor template file.
+
+Take a look at this basic decriptor:
+
+.. code-block:: html+django
+
+    {% load dach %}
+    {
+      "key": "weather",
+      "name": "Weather HipChat Addon",
+      "description": "Description for Weather",
+      "vendor": {
+        "name": "Author Name",
+        "url": "https://example.com"
+      },
+      "links": {
+        "self": "{% absurl 'weather:descriptor' %}",
+        "homepage": "https://example.com"
+      },
+      "capabilities": {
+        "hipchatApiConsumer": {
+          "scopes": {% scopes %}
+        },
+        "installable": {
+          "callbackUrl": "{% absurl 'weather:install' %}"
+        }
+      }
+    }
 
 
 

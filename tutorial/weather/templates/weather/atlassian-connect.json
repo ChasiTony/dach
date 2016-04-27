@@ -13,8 +13,7 @@
   },
   "capabilities": {
     "hipchatApiConsumer": {
-      "scopes": [
-      ]
+      "scopes": {% scopes %}
     },
     "installable": {
       "callbackUrl": "{% absurl 'weather:install' %}"
