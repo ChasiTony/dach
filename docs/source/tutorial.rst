@@ -1,11 +1,8 @@
 Tutorial
 ========
 
-In this tutorial we will create an addon that add a `Glance <https://developer.atlassian.com/hipchat/guide/glances>`_ to a HipChat room to show information about the weather in Barcelona, Spain.
+In this tutorial we will create an addon that add an "Hello World" `Glance <https://developer.atlassian.com/hipchat/guide/glances>`_ to a HipChat room.
 
-We will use the `OpenWeatherMap <https://www.openweathermap.org/>`_ API to retrieve the weather information.
-
-You must sign in to OpenWeatherMap to obtain an api key for the purpose of this tutorial.
 
 
 Setup your development environment
@@ -86,9 +83,9 @@ HipChat needs to call your ``views`` to interacts with your addon, so you need t
 Then you have to add a basic dach configuration to your settings.py: ::
 
     DACH_CONFIG = {
-        'base_url': 'https://weather.ngrok.io',
+        'base_url': 'https://helloworld.ngrok.io',
         'appconfig': {
-            'weather': {
+            'helloworld': {
                 'scopes': ['view_room']
             }
         }
@@ -106,22 +103,22 @@ Next you can create your database:
     $ ./manage.py migrate
 
 
-Setup your weather addon django app
------------------------------------
+Setup your helloworld addon django app
+--------------------------------------
 
 To create a django app for your addon you can use the ``starthip`` command.
 In your project root folder type the following:
 
 .. code-block:: console
 
-    $ ./manage.py starthip weather
+    $ ./manage.py starthip helloworld
 
 
 The ``starthip`` command wraps the default startapp command. In addition to the app layout created by startapp, ``starthip`` adds the following: ::
 
-    weather/
+    helloworld/
         templates/
-            weather/
+            helloworld/
                 atlassian-connect.json
         urls.py
 
@@ -133,12 +130,12 @@ The ``urls.py`` includes the dach urls to handle the installation flow for the w
     from django.conf.urls import url, include
 
     urlpatterns = [
-        url(r'^setup/', include('dach.urls', namespace='weather',
-                                app_name='weather')),
+        url(r'^setup/', include('dach.urls', namespace='helloworld',
+                                app_name='helloworld')),
     ]
 
 
-Edit your ``tutorial/urls.py`` to includes the weather app urls:
+Edit your ``tutorial/urls.py`` to includes the helloworld app urls:
 
 .. code-block:: python
 
@@ -147,7 +144,7 @@ Edit your ``tutorial/urls.py`` to includes the weather app urls:
 
     urlpatterns = [
         url(r'^admin/', admin.site.urls),
-        url(r'^weather/', include('weather.urls')),
+        url(r'^helloworld/', include('helloworld.urls')),
     ]
 
 
@@ -162,15 +159,15 @@ Take a look at this basic decriptor:
 
     {% load dach %}
     {
-      "key": "weather",
-      "name": "Weather HipChat Addon",
-      "description": "Description for Weather",
+      "key": "helloworld",
+      "name": "Helloworld HipChat Addon",
+      "description": "Description for Helloworld",
       "vendor": {
         "name": "Author Name",
         "url": "https://example.com"
       },
       "links": {
-        "self": "{% absurl 'weather:descriptor' %}",
+        "self": "{% absurl 'helloworld:descriptor' %}",
         "homepage": "https://example.com"
       },
       "capabilities": {
@@ -178,7 +175,7 @@ Take a look at this basic decriptor:
           "scopes": {% scopes %}
         },
         "installable": {
-          "callbackUrl": "{% absurl 'weather:install' %}"
+          "callbackUrl": "{% absurl 'helloworld:install' %}"
         }
       }
     }
