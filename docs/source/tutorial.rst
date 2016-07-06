@@ -1,7 +1,7 @@
 Tutorial
 ========
 
-In this tutorial we will create an addon that add an "Hello World" `Glance <https://developer.atlassian.com/hipchat/guide/glances>`_ to a HipChat room.
+In this tutorial we will create an addon that add an "Hello World" `Glance <https://developer.atlassian.com/hipchat/guide/glances>`_ to an HipChat room.
 
 
 
@@ -123,7 +123,7 @@ The ``starthip`` command wraps the default startapp command. In addition to the 
         urls.py
 
 
-The ``urls.py`` includes the dach urls to handle the installation flow for the weather addon:
+The ``urls.py`` includes the dach urls to handle the installation flow for the helloworld addon:
 
 .. code-block:: python
     
@@ -148,8 +148,8 @@ Edit your ``tutorial/urls.py`` to includes the helloworld app urls:
     ]
 
 
-Configure the weater addon
---------------------------
+Configure the helloworld addon
+------------------------------
 
 The ``starthip`` also created a basic ``atlassian-connect.json`` addon descriptor template file.
 
@@ -180,5 +180,103 @@ Take a look at this basic decriptor:
       }
     }
 
+It loads the dach template tags library and use the ``absurl`` tag to 
+render the ``atlassian-connect.json`` addon descriptor with absolute urls.
+ 
+
+Now it's time to add the glance to your addon descriptor:
+
+
+.. code-block:: html+django
+    :emphasize-lines: 19-31
+
+    {% load dach %}
+    {
+      "key": "helloworld",
+      "name": "Helloworld HipChat Addon",
+      "description": "Description for Helloworld",
+      "vendor": {
+        "name": "Author Name",
+        "url": "https://example.com"
+      },
+      "links": {
+        "self": "{% absurl 'helloworld:descriptor' %}",
+        "homepage": "https://example.com"
+      },
+      "capabilities": {
+        "hipchatApiConsumer": {
+          "scopes": {% scopes %}
+        },
+      },
+      "glance": [
+        {
+          "icon": {
+            "url": "{% absstatic 'img/helloworld.svg' %}",
+            "url@2x": "{% absstatic 'img/helloworld.svg' %}"
+          },
+          "key": "helloworld.glance",
+           "name": {
+              "value": "Hello world"
+           },
+           "queryUrl": "{% absurl 'query_glance' %}"
+        }
+      ],
+      "installable": {
+        "callbackUrl": "{% absurl 'helloworld:install' %}"
+      }
+    }
+
+
+Add a view to your URLConf
+--------------------------
+
+Next you need to modify the ``urls.py`` of your addon app to allow HipChat to query for the data of your Glance.
+
+.. code-block:: python
+    
+    from django.conf.urls import url, include
+
+    from . import views
+
+    urlpatterns = [
+        url(r'^setup/', include('dach.urls', namespace='helloworld',
+                                app_name='helloworld')),
+        url(r'^query_glance$', views.query_glance, name='query_glance'),
+    ]
+
+
+Write your glance query view
+----------------------------
+
+Finally you have to write the view method to provide data to HipChat for your Glance.
+
+
+.. code-block:: python
+
+    from dach.decorators import tenant_required
+    from dach.shortcuts import dach_response
+    from dach.utils import abs_static
+
+    @tenant_required
+    def glance(request):
+        url = abs_static('img/thumbsup.svg')
+        glance_data = {
+            'label': {
+                'type': 'html',
+                'value': 'Hello world'
+            },
+            'status': {
+                'type': 'icon',
+                'value': {
+                    'url': url,
+                    'url@2x': url
+                }
+            }
+        }
+        return dach_response(glance_data)
+
+The ``@tenant_required`` decorator check for an authenticated tenant.
+The ``abs_static`` function generate an absolute url for a static asset.
+Finally the ``dach_response`` create a response object with the right content type.
 
 
