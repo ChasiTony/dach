@@ -10,7 +10,7 @@ Setup your development environment
 
 .. note::
 
-    This tutorial assumes that you have already created a virtualenv, you have installed and have created a django project called tutorial.
+    This tutorial assumes that you have already created a virtualenv, you have installed and have created a django project called tutorial. It assumes also that you have an HipChat account to test your addon.
 
 
 Requirements
@@ -63,6 +63,12 @@ You can install dach using pip:
 
     $ pip install dach
 
+
+Write your Hello World addon
+****************************
+
+Configure your Django project
+-----------------------------
 
 To use dach you need to add it to the ``INSTALLED_APPS`` in your settings.py::
 
@@ -278,5 +284,33 @@ Finally you have to write the view method to provide data to HipChat for your Gl
 The ``@tenant_required`` decorator check for an authenticated tenant.
 The ``abs_static`` function generate an absolute url for a static asset.
 Finally the ``dach_response`` create a response object with the right content type.
+
+
+Install your "Hello World" addon
+--------------------------------
+
+Now it's time to test your addon. First of all you need to start your Django development server:
+
+.. code-block:: console
+
+    $ ./manage.py runserver
+
+
+After that log into your HipChat account, choose ``Integrations`` from the menu on the top of the home page.
+At the bottom of the ``Integrations`` page you'll find a link to install an integration from a descriptor URL.
+
+Type your ngrok tunnel base_url followed by the uri to the ``atlassian-connect.json`` descriptor eg:
+
+    https://mytunnel.ngrok.io/helloworld/setup/atlassian-connect.json
+
+Choose the room where you want to install the addon.
+
+Then, go to the room where the addon was installed and you'll find the glance in the right sidebar. Enjoy !!
+
+
+
+
+
+
 
 

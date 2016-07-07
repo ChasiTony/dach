@@ -18,6 +18,7 @@ Contents:
 
    about
    tutorial
+   guide
    api
 
 
