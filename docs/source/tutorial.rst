@@ -153,13 +153,21 @@ Edit your ``tutorial/urls.py`` to includes the helloworld app urls:
         url(r'^helloworld/', include('helloworld.urls')),
     ]
 
+Add the ``helloworld`` app to the ``INSTALLED_APPS`` in your settings.py::
+
+    INSTALLED_APPS = (
+        ...
+        'dach',
+        'helloworld',
+    )
+
 
 Configure the helloworld addon
 ------------------------------
 
 The ``starthip`` also created a basic ``atlassian-connect.json`` addon descriptor template file.
 
-Take a look at this basic decriptor:
+Take a look at this basic descriptor:
 
 .. code-block:: html+django
 
@@ -264,7 +272,7 @@ Finally you have to write the view method to provide data to HipChat for your Gl
     from dach.utils import abs_static
 
     @tenant_required
-    def glance(request):
+    def query_glance(request):
         url = abs_static('img/thumbsup.svg')
         glance_data = {
             'label': {
