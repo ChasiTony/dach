@@ -30,6 +30,8 @@ class InstallFlowTestCase(TestCase):
 
     def test_descriptor(self):
         response = self.client.get(reverse('test:descriptor'))
+        self.assertIsInstance(json.loads(response.content.decode()),
+                              dict)
         self.assertEqual(response.status_code, 200)
 
     def test_descriptor_http_method_not_allowed(self):

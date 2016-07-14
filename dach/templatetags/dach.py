@@ -1,11 +1,12 @@
 import json
+
 from django.conf import settings
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.template import Library
 from django.template.defaulttags import URLNode, url
-from django.utils.six.moves.urllib.parse import urljoin
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.templatetags.static import StaticNode
-
+from django.utils.html import mark_safe
+from django.utils.six.moves.urllib.parse import urljoin
 
 DACH_CONFIG = getattr(settings, 'DACH_CONFIG')
 
@@ -53,4 +54,4 @@ def scopes(context):
     request = context['request']
     appconfig = DACH_CONFIG['appconfig']
     scopes_list = appconfig[request.resolver_match.app_name]['scopes']
-    return json.dumps(scopes_list)
+    return mark_safe(json.dumps(scopes_list))

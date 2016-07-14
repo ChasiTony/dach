@@ -94,7 +94,8 @@ Then you have to add a basic dach configuration to your settings.py: ::
             'helloworld': {
                 'scopes': ['view_room']
             }
-        }
+        },
+        'cors_domains': ['*']
     }
 
 .. warning::
@@ -102,11 +103,18 @@ Then you have to add a basic dach configuration to your settings.py: ::
     You have to replace the ``base_url`` value with your ngrok tunnel address.
 
 
+Next you have to create migrations:
+
+.. code-block:: console
+
+    $ ./manage.py makemigrations dach
+
+
 Next you can create your database:
 
 .. code-block:: console
 
-    $ ./manage.py migrate
+    $ ./manage.py migrate dach
 
 
 Setup your helloworld addon django app
@@ -221,20 +229,20 @@ Now it's time to add the glance to your addon descriptor:
         "hipchatApiConsumer": {
           "scopes": {% scopes %}
         },
+        "glance": [
+          {
+            "icon": {
+              "url": "{% absstatic 'img/helloworld.svg' %}",
+              "url@2x": "{% absstatic 'img/helloworld.svg' %}"
+            },
+            "key": "helloworld.glance",
+             "name": {
+                "value": "Hello world"
+             },
+             "queryUrl": "{% absurl 'query_glance' %}"
+          }
+        ]
       },
-      "glance": [
-        {
-          "icon": {
-            "url": "{% absstatic 'img/helloworld.svg' %}",
-            "url@2x": "{% absstatic 'img/helloworld.svg' %}"
-          },
-          "key": "helloworld.glance",
-           "name": {
-              "value": "Hello world"
-           },
-           "queryUrl": "{% absurl 'query_glance' %}"
-        }
-      ],
       "installable": {
         "callbackUrl": "{% absurl 'helloworld:install' %}"
       }
@@ -292,6 +300,13 @@ Finally you have to write the view method to provide data to HipChat for your Gl
 The ``@tenant_required`` decorator check for an authenticated tenant.
 The ``abs_static`` function generate an absolute url for a static asset.
 Finally the ``dach_response`` create a response object with the right content type.
+
+
+Add images to your app
+----------------------
+
+Create a folder called ``img`` in your app root folder and put in the ``img`` folder
+two images: **thumbsup.svg** and **helloworld.svg**.
 
 
 Install your "Hello World" addon
